@@ -1,0 +1,11 @@
+# python test
+print("hello world")
+
+x=3+4
+print(x)
+
+for x in range(5,10):
+  print(x)
+
+
+
