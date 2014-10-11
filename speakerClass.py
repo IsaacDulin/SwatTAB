@@ -1,39 +1,36 @@
 #Creates a class to store individual speakers. Two of these will be member 
-#variables of each team class
+#variables of each team class. These will primarily be used to tab the top 
+#speakers.
 
 class Speaker: 
-	def __init__(self):
-		self.name="john"
+	def __init__(self, spkrName, affil, novice):
+		self.name=spkrName
+		self.affiliation=affil
+
+		self.speaks=[0,0,0,0,0]
+		self.ranks=[0,0,0,0,0]
+
+		self.novice=novice
 		
-		self.roundOneSpeaks=0
-		self.roundTwoSpeaks=0
-		self.roundThreeSpeaks=0
-		self.roundFourSpeaks=0
-		self.roundFiveSpeaks=0
-		self.roundSixSpeaks=0
-
-		self.roundOneRanks=0
-		self.roundTwoRanks=0
-		self.roundThreeRanks=0
-		self.roundFourRanks=0
-		self.roundFiveRanks=0
-
-		self.totalSpeaks=0
-		self.totalRanks=0
-		self.affiliation="Swarthmore"
-	def __init__(self, testvar):
-		self.name=testvar
+		self.update()
 
 	def update(self):
-		self.totalSpeaks=self.roundOneSpeaks+self.roundTwoSpeaks+\
-				self.roundThreeSpeaks+self.roundFourSpeaks+\
-				self.roundFiveSpeaks
+		self.totalSpeaks=sum(self.speaks)
 
-		self.totalRanks=self.roundOneRanks+self.roundTwoRanks+\
-				self.roundThreeRanks+self.roundFourRanks+\
-				self.roundFiveRanks
+		self.totalRanks=sum(self.speaks)
+
 	def changeName(self, newName):
 		self.name=newName
+
 	def changeAffil(self, newAffil):
 		self.affiliation=newAffil
 	
+	def changeNoviceStatus(self, newNoviceStatus):
+		self.novice=newNoviceStatus
+
+	def inputSpeaks(self, roundNumber, speaks):
+		self.speaks[roundNumber]=speaks
+	
+	def inputRanks(self, roundNumber, ranks):
+		self.ranks[roundNumber]=ranks
+		
