@@ -7,8 +7,8 @@ class Speaker:
 		self.name=spkrName
 		self.affiliation=affil
 
-		self.speaks=[0,0,0,0,0]
-		self.ranks=[0,0,0,0,0]
+		self.speaks=[0,0,0,0,0,0,0,0,0,0]
+		self.ranks=[0,0,0,0,0,0,0,0,0,0]
 
 		self.novice=novice
 		
