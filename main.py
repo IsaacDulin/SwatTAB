@@ -16,6 +16,7 @@ from tournamentClass import Tournament
 #############################################################################
 
 def addATeam(button):
+	addTeamBox=builder.get_object("addTeamBox")
 	
 	#IMPLEMENT ERROR CHECKING FOR NEW TEAMS!!!!
 
@@ -73,7 +74,7 @@ def clearAddATeamBox():
 	builder.get_object("HybridStatus").set_active(False)
 
 def updateTeamList():
-	
+	team_list=builder.get_object("teamList")
 	team_list.clear()
 
 	for i in range(0,len(listOfAllTeams)):
@@ -87,10 +88,12 @@ def updateTeamList():
 		
 
 def exitTeamAdder(button):
+	addTeamBox=builder.get_object("addTeamBox")
 	clearAddATeamBox()
 	addTeamBox.hide()
 
 def openTeamAdder(button):
+	addTeamBox=builder.get_object("addTeamBox")
 	addTeamBox.show_all()
 	toggleHybridStatus(button)
 
@@ -121,8 +124,9 @@ def toggleHybridStatus(button):
 		builder.get_object("Spkr1Affil").hide()
 		builder.get_object("Spkr2Affil").hide()
 
-####### Within the add a team set of functions, these are the #######
-###############     add a school set of functions ###################
+##############################################################################
+############### FUNCTIONS TO ADD SCHOOLS TO THE TOURNAMENT ###################
+##############################################################################
 
 def addASchoolOpen(button):
 
@@ -162,20 +166,23 @@ def addASchoolCancel(button):
 #############################################################################
 
 def openFileBox(button):
+	openBox=builder.get_object("openBox")
 	openBox.show_all()
 
 def exitOpenBox(button):
+	openBox=builder.get_object("openBox")
 	filePreview=builder.get_object("filePreview")
 	filePreview.set_text("")
 	openBox.hide()
 
 def selectAFile(selection):
+	openBox=builder.get_object("openBox")
 	print(openBox.get_preview_filename())
 	filePreview=builder.get_object("filePreview")
 	filePreview.set_text(openBox.get_preview_filename())
 
 def openAFile(button):
-	print("Opening a file")	
+	openBox=builder.get_object("openBox")
 	filePreview=builder.get_object("filePreview")
 	fileName=filePreview.get_text()
 	
@@ -290,19 +297,22 @@ def calculateSeeds():
 		adjRanksSeed="00"
 		dblAdjSpksSeed="00000"
 		dblAdjRnksSeed="00"
-
+		
+		#Calculate speaks and ranks lists for calculations
+		firstSpks=listOfAllTeams[i].spkr1.speaks
+		secondSpks=listOfAllTeams[i].spkr2.speaks
+		firstRanks=listOfAllTeams[i].spkr1.ranks	
+		secondRanks=listOfAllTeams[i].spkr2.ranks
+		for j in range(0,len(firstSpks)):
+			rndSpeaks.append(firstSpks[j]+secondSpks[j])
+			rndRanks.append(firstRanks[j]+secondRanks[j])
+		rndSpeaks.sort()
+		rndRanks.sort()
+		adjSpeaks=rndSpeaks
+		
+		#Do adjusted speaks and ranks
 		if roundsSoFar>=3:
-			#Calculate Adjusted Speaks and Ranks
-			firstSpks=listOfAllTeams[i].spkr1.speaks
-			secondSpks=listOfAllTeams[i].spkr2.speaks
-			firstRanks=listOfAllTeams[i].spkr1.ranks	
-			secondRanks=listOfAllTeams[i].spkr2.ranks
-			for j in range(0,len(firstSpks)):
-				rndSpeaks.append(firstSpks[j]+secondSpks[j])
-				rndRanks.append(firstRanks[j]+secondRanks[j])
-			rndSpeaks.sort()
-			rndRanks.sort()
-			adjSpeaks=rndSpeaks
+		
 			adjRanks=rndRanks
 			adjSpeaks.pop(0)
 			adjSpeaks.pop(-1)
@@ -371,17 +381,6 @@ def calculateSeeds():
 			seedVal+=tempSeeds[seedingPriority[i]-1]
 			
 		seeds.append(seedVal)
-
-		#Just some debugging print statements. ALWAYS CHECK THESE
-		#UH-OH SHOULD NEVER BE CALLED. THERE IS EFFECTIVELY A
-		#ZERO% CHANCE OF RANDOM RETURnIng THE SAME VALUE TWICE
-		print(seedVal)
-	if seeds[0]>seeds[1]:
-		print("first > second")
-	if seeds[1]>seeds[0]:
-		print("second > first")
-	if seeds[1]==seeds[0]:
-		print("uh-oh")
 
 	return seeds
 
@@ -625,21 +624,12 @@ def setInitialization(button):
 
 def setTabs():
 	notebook=builder.get_object("Main Notebook")
-	pairingTable=[]
-	pairingTableViewer=[]
-	tabLabel=[]
-	for i in range(0,totalRounds-1):
-		pairingTable.append(Gtk.ListStore(str, str, str))
-		pairingTableViewer.append(Gtk.TreeView(pairingTable[i]))
+	
+	for i in range(10,totalRounds,-1):
 		
-		tabLabel.append(Gtk.Label("Round " + str(i+2) + "\nPairings"))
+		notebook.remove_page(i)
+	
 
-		notebook.insert_page(pairingTableViewer[i],tabLabel[i],i+2)
-	notebook.show_all()
-	builder.get_object("editingTeamDetailsCancel").hide()
-	builder.get_object("editingTeamDetailsSaveChanges").hide()
-	for i in range(0,10):
-		builder.get_object("editATeam_round_vbox"+str(i+1)).hide()
 
 #############################################################################
 ########		GENERAL ERROR CHECKING FUNCTIONS	   ##########
@@ -728,27 +718,39 @@ def pairARound(button):
 	
 	#Make the right number of brackets
 	for i in range(roundsSoFar, -1, -1):
+		 
+		bracket.clear()
+		tempBracket.clear()
+		bracket=[[],[]]
+		tempBracket=[]
+		size=len(seededTeamList) #dont want to edit 
+					 #the list while iterating
+		for j in range(0,size):
+			if seededTeamList[0].totalWins==i:
+				tempBracket.append(seededTeamList.pop(0))
 
-		for j in range(0,len(seededTeamList)):
-			if seededTeamList[j].totalWins==i:
-				tempBracket.append(seededTeamList[j])
-		if len(tempBracket)%2==1:
-			pass
-			#GET A PULL UP. OR CREATE A "BYE TEAM" AWW FUCK.
-	
 		#Preliminarily pair this round
 		size=len(tempBracket)
 		for j in range(0,int(size/2)):
-			bracket[1].insert(0,tempBracket.pop())
-		for j in range(0,len(tempBracket)):
 			bracket[0].append(tempBracket[j])
+			bracket[1].append(tempBracket[size-1-j])
+		
+		#Pair in a pull-up or a bye
+		if len(tempBracket)%2==1:
+			print("odd number of teams in the bracket")
+			pullUp=getAPullUp(i, seededTeamList, tempBracket)
+			tempBracket.append(pullUp)
+			bracket[1].append(pullUp)
 		
 		conflictsExist=True #Assume there are conflicts
 		constraints=["pulllup", "school", "hit", "gov/opps"] #Start with using all four criteria
 		while conflictsExist:
 			#For loop, each team gets one iteration
-			
-			for i in range(0,len(bracket[1])):
+			if len(bracket[0])==0:
+				#no conflicts in an empty bracket
+				conflictsExist=False
+				break
+			for i in range(0,len(bracket[0])):
 				conf=checkConflicts(bracket[0][i],bracket[1][i],constraints)
 				#If this pairing has a conflict, we start swapping
 				j=0 #declare an iterator
@@ -765,18 +767,36 @@ def pairARound(button):
 						print("had to squirrel out")
 						break
 				if conf==True:
-					print("WE HAD TO POP A CONSTRAING! FUCK!!")
+					print("WE HAD TO POP A CONSTRAINT! FUCK!!")
 					constraints.pop()
 					conflictsExist=False
 					break
 				elif conf==False:
 					conflictsExist=False
-		for j in range(0,len(bracket[0])):
-			theRound[0].append(bracket[0][j])
-		for j in range(0,len(bracket[1])):
-			theRound[1].append(bracket[1][j])
+		
+		for k in range(0,len(bracket[0])):
+			theRound[0].append(bracket[0][k])
+			theRound[1].append(bracket[1][k])
 	updateVisualPairings(theRound)
+
+def getAPullUp(bracketNumber, seedOrderedTeamList, tempBracket):
+	if bracketNumber==0:
+		#Create a BYE. FUCK
+		byeTeam=Team("Bye","None","None","None","None","None",False,
+				False,"None")
+		return byeTeam
+	lowerBracket=[]
+	for i in range(0, len(seedOrderedTeamList)):
+		#get all teams in the bracket below
+		if seedOrderedTeamList[i].totalWins==bracketNumber-1:
+			lowerBracket.append(seedOrderedTeamList.pop(i))
 	
+	#Do this if we pull up from the middle. 
+	return lowerBracket[int(len(lowerBracket)/2)]
+	
+		
+
+
 def updateVisualPairings(currentRound):
 	pairingsGovs=builder.get_object("roundPairingsGov"+str(roundsSoFar+1))
 	pairingsOpps=builder.get_object("roundPairingsOpp"+str(roundsSoFar+1))
@@ -906,16 +926,13 @@ window = builder.get_object("window1")
 window.show_all()
 
 
-#Any objects that require function calls on them (more than in a local setting)
-#will be "gotten" here. These are effectively global variables.
-team_list=builder.get_object("teamList")
-addTeamBox=builder.get_object("addTeamBox")
-openBox=builder.get_object("openBox")
-
-
-#Declare any actual global variables. These are the grand lists of teams, 
+#Declare a few global variables. These are the grand lists of teams, 
 #speakers, rooms, judges, and integers for the rounds that have been paired so
-#far and the total numbe of in-rounds.
+#far and the total numbe of in-rounds. It's unfortunate to have to use these,
+#but the main loop for the GUI is auto-called in the Gtk.main() so these 
+#global variables are the clearest way to store this information. The 
+#alternatives would be to store them somewhere hidden in the GUI and reaccess 
+#them everytime, but I think this is clearer.
 listOfAllTeams=[]
 listOfAllRooms=[]
 listOfAllJudges=[]

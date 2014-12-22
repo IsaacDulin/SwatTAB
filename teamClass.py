@@ -14,18 +14,18 @@ class Team:
 		self.seeded=seed
 		
 		#initializations for all teams (they haven't had any rounds yet)
-		self.judges=[]
-		self.opponents=[]
+		self.judges=["","","","","","","","","",""]
+		self.opponents=["","","","","","","","","",""]
 		self.wasPullUp=False
 		self.hitPullUp=False
-		self.govs=[0,0,0,0,0]
-		self.roundWins=[0,0,0,0,0]
+		self.govs=[0,0,0,0,0,0,0,0,0,0]
+		self.roundWins=[0,0,0,0,0,0,0,0,0,0]
 		self.totalWins=0
 		self.totalSpeaks=0
 		self.totalRanks=0
-	
-	
-	
+
+		self.updateSpeaksAndRanks()
+		
 	def changeTeamName(self, newTeamName):
 		self.name=newTeamName
 	
@@ -51,7 +51,10 @@ class Team:
 		self.spkr2.speaks[roundNumber]=spkr2Spks
 		self.spkr1.ranks[roundNumber]=spkr1Ranks
 		self.spkr2.ranks[roundNumber]=spkr2Ranks
+	
+		updateSpeaksAndRanks()
 
+	def updateSpeaksAndRanks(self):
 		self.totalSpeaks=sum(self.spkr1.speaks)+sum(self.spkr2.speaks)
 		self.totalRanks=sum(self.spkr1.ranks)+sum(self.spkr2.ranks)
 		self.totalWins=sum(self.roundWins)
